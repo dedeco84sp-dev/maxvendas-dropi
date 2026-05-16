@@ -60,7 +60,7 @@ app.get('/callback', async (req, res) => {
   }
 });
 
-// 2. ROTA DE SINCRONIZAÇÃO AUTOMÁTICA (DIRETO NA API DA DROPI)
+// 2. ROTA DE SINCRONIZAÇÃO AUTOMÁTICA (URL DA DROPI CORRIGIDA)
 app.post('/sincronizar', async (req, res) => {
   const tokenML = ML_STORAGE.access_token;
   if (!tokenML) return res.json({ ok: false, erro: "Mercado Livre não autenticado" });
@@ -69,8 +69,8 @@ app.post('/sincronizar', async (req, res) => {
   let dropiData;
 
   try {
-    // Como estamos no Render (IP normal), a Cloudflare da Dropi vai deixar passar!
-    const dropiResp = await fetch("https://api.dropi.com.br/v1/products?limit=10", {
+    // Endereço oficial e unificado da API Dropi / Empreende
+    const dropiResp = await fetch("https://api.empreende.com.br/v1/dropi/products?limit=10", {
       method: "GET",
       headers: {
         "x-api-key": DROPI_TOKEN,
@@ -92,13 +92,13 @@ app.post('/sincronizar', async (req, res) => {
   const tituloOriginal = produtoDropi.title || "Produto Nacional";
   let tituloML = tituloOriginal.length > 60 ? tituloOriginal.substring(0, 60) : tituloOriginal;
 
-  let categoriaId = "MLB270726"; 
+  let categoryId = "MLB270726"; 
   try {
     const predResp = await fetch(`https://api.mercadolibre.com/sites/MLB/category_predictor/predict?title=${encodeURIComponent(tituloML)}`, {
       headers: { "Authorization": "Bearer " + tokenML }
     });
     const predData = await predResp.json();
-    if (predData && predData.id) categoriaId = predData.id;
+    if (predData && predData.id) categoryId = predData.id;
   } catch (e) {}
 
   let listaFotos = [];
@@ -120,7 +120,7 @@ app.post('/sincronizar', async (req, res) => {
 
   const itemML = {
     title: tituloML, 
-    category_id: categoriaId, 
+    category_id: categoryId, 
     price: Math.round(precoVendaML * 100) / 100, 
     currency_id: "BRL",
     available_quantity: produtoDropi.stock > 0 ? produtoDropi.stock : 5, 
