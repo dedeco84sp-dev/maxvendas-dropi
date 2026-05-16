@@ -66,8 +66,8 @@ app.post('/sincronizar', async (req, res) => {
   let dropiData;
 
   try {
-    // URL INTERNACIONAL ATUALIZADA DA EMPREENDE/DROPI
-    const dropiResp = await fetch("https://app.empreende.com/api/v1/dropi/products?limit=10", {
+    // LINK OFICIAL E ATIVO DA DROPI INTERNACIONAL (.COM)
+    const dropiResp = await fetch("https://api.dropi.com/v1/products?limit=10", {
       method: "GET",
       headers: {
         "x-api-key": DROPI_TOKEN,
