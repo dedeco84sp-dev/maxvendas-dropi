@@ -3,7 +3,6 @@ const fetch = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Armazenamento temporário em memória para os Tokens do Mercado Livre
 let ML_STORAGE = {
   access_token: "",
   refresh_token: ""
@@ -12,7 +11,6 @@ let ML_STORAGE = {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// 1. ROTA DE AUTENTICAÇÃO DO MERCADO LIVRE
 app.get('/auth', (req, res) => {
   const protocol = req.headers['x-forwarded-proto'] || req.protocol;
   const host = req.get('host');
@@ -60,7 +58,6 @@ app.get('/callback', async (req, res) => {
   }
 });
 
-// 2. ROTA DE SINCRONIZAÇÃO AUTOMÁTICA (URL DA DROPI CORRIGIDA)
 app.post('/sincronizar', async (req, res) => {
   const tokenML = ML_STORAGE.access_token;
   if (!tokenML) return res.json({ ok: false, erro: "Mercado Livre não autenticado" });
@@ -69,8 +66,8 @@ app.post('/sincronizar', async (req, res) => {
   let dropiData;
 
   try {
-    // Endereço oficial e unificado da API Dropi / Empreende
-    const dropiResp = await fetch("https://api.empreende.com.br/v1/dropi/products?limit=10", {
+    // URL INTERNACIONAL ATUALIZADA DA EMPREENDE/DROPI
+    const dropiResp = await fetch("https://app.empreende.com/api/v1/dropi/products?limit=10", {
       method: "GET",
       headers: {
         "x-api-key": DROPI_TOKEN,
@@ -154,7 +151,6 @@ app.post('/sincronizar', async (req, res) => {
   }
 });
 
-// 3. PAINEL VISUAL DO SEU ROBÔ
 app.get('/', (req, res) => {
   const conectado = ML_STORAGE.access_token ? true : false;
 
@@ -171,12 +167,12 @@ app.get('/', (req, res) => {
   pagina += "#msg-sync{display:none;padding:12px;border-radius:8px;margin-top:12px;font-size:14px;word-break:break-all;}";
   pagina += "</style></head><body>";
   
-  pagina += "<div class='top'><h1>MaxVendasTop</h1><div class='sub'>Automação Dropshipping Nacional: Dropi -> Mercado Livre (Hospedado no Render)</div></div>";
+  pagina += "<div class='top'><h1>MaxVendasTop</h1><div class='sub'>Automação Dropshipping: Dropi -> Mercado Livre</div></div>";
   pagina += "<div class='box'><h2>Status das Conexões</h2>";
 
   if (conectado) {
     pagina += "<div class='ok'>✅ Mercado Livre: Conectado</div>";
-    pagina += "<div class='ok'>✅ Integração Dropi: Pronta para Rodar (Sem Erro 1016)</div>";
+    pagina += "<div class='ok'>✅ Integração Dropi: Pronta para Rodar</div>";
   } else {
     pagina += "<div class='err'>❌ Mercado Livre: Não conectado</div>";
     pagina += "<a href='/auth' class='btn'>Conectar minha conta do ML</a>";
@@ -185,7 +181,7 @@ app.get('/', (req, res) => {
 
   if (conectado) {
     pagina += "<div class='box'><h2>Painel de Automação Real</h2>";
-    pagina += "<p style='font-size:14px; color:#555;'>Clique abaixo para buscar o primeiro produto na sua conta Dropi (Dedeco Tá On) e publicá-lo automaticamente no Mercado Livre.</p>";
+    pagina += "<p style='font-size:14px; color:#555;'>Clique abaixo para buscar o primeiro produto na sua conta Dropi e publicá-lo automaticamente no Mercado Livre.</p>";
     pagina += "<button class='btn btn-sync' onclick='sincronizar()'>Sincronizar Produto Dropi</button>";
     pagina += "<div id='msg-sync'></div></div>";
 
